@@ -1,0 +1,6 @@
+@MarangozEcommerce.API_HostAddress = http://localhost:5076
+
+GET {{MarangozEcommerce.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

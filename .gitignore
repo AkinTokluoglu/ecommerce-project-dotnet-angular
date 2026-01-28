@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+**/bin
+**/obj
+**/.vs
+**/.idea
+**/.vscode
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.log
+*.user
+**/.DS_Store
+backend/src/API/firebase-service-account.json
