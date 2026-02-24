@@ -30,6 +30,36 @@
     -   Ürün, Kategori ve Sipariş yönetimi.
     -   Müşteri mesajlarını okuma ve yönetme.
 
+## 🗄️ Veritabanı Yapılandırması (Database Configuration)
+
+Proje, hem **SQLite** hem de **PostgreSQL** veritabanlarını destekleyecek şekilde kurgulanmıştır. Varsayılan olarak kolay kurulum için SQLite aktif gelmektedir.
+
+### 1. SQLite Kullanımı (Varsayılan)
+Herhangi bir kurulum gerektirmez. `backend/src/API/appsettings.json` dosyasında şu ayarların olduğundan emin olun:
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Data Source=marangoz.db"
+},
+"DbProvider": "sqlite"
+```
+
+### 2. PostgreSQL Kullanımı
+Canlı ortam veya daha ölçeklenebilir bir yapı için PostgreSQL'e geçmek oldukça basittir:
+1.  **Bağlantı Dizesini Güncelleyin:** `appsettings.json` içinde PostgreSQL sunucu bilgilerinizi girin:
+    ```json
+    "ConnectionStrings": {
+      "DefaultConnection": "Host=localhost;Database=MarangozDb;Username=postgres;Password=sifreniz"
+    }
+    ```
+2.  **Sağlayıcıyı Değiştirin:** `DbProvider` değerini `"postgres"` yapın:
+    ```json
+    "DbProvider": "postgres"
+  ```
+3.  **Migration Uygulayın:** Terminalde backend dizinindeyken veritabanını oluşturun:
+    ```bash
+    dotnet ef database update
+    ```
+
 ## 🚀 Teknolojik Altyapı
 
 ### Backend (.NET API)
