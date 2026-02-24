@@ -27,10 +27,10 @@ import { AuthService } from '../../services/auth.service';
         
         <div class="nav-actions">
           @if (authService.isLoggedIn()) {
-            <div class="user-menu">
+            <a routerLink="/profile" class="user-menu" style="text-decoration: none;">
               <i data-lucide="user-circle"></i>
               <span>{{ authService.currentUser()?.fullName }}</span>
-            </div>
+            </a>
             @if (authService.isAdmin()) {
               <a routerLink="/admin" class="btn-admin">
                 <i data-lucide="settings"></i>

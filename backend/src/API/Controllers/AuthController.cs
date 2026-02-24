@@ -60,4 +60,26 @@ public class AuthController : ControllerBase
 
         return Ok(new { message = "Kullanıcı Admin yapıldı. Lütfen çıkış yapıp tekrar girin." });
     }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+    {
+        await _authService.ForgotPasswordAsync(request);
+        
+        // Security: always return success
+        return Ok(new { message = "Eğer bu e-posta adresi kayıtlıysa, şifre sıfırlama bağlantısı gönderilmiştir." });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        var result = await _authService.ResetPasswordAsync(request);
+        
+        if (!result)
+        {
+            return BadRequest(new { message = "Geçersiz veya süresi dolmuş token." });
+        }
+
+        return Ok(new { message = "Şifreniz başarıyla sıfırlandı." });
+    }
 }

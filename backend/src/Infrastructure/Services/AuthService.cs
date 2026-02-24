@@ -15,11 +15,13 @@ public class AuthService : IAuthService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IConfiguration _configuration;
+    private readonly IEmailService _emailService;
 
-    public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration)
+    public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration, IEmailService emailService)
     {
         _unitOfWork = unitOfWork;
         _configuration = configuration;
+        _emailService = emailService;
     }
 
     public async Task<AuthResponse?> RegisterAsync(RegisterRequest request)
@@ -87,6 +89,53 @@ public class AuthService : IAuthService
             FullName = user.FullName,
             Role = user.Role.ToString()
         };
+    }
+
+    public async Task<bool> ForgotPasswordAsync(ForgotPasswordRequest request)
+    {
+        var user = await _unitOfWork.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        if (user == null)
+        {
+            // Security best practice: don't reveal if user exists
+            return true;
+        }
+
+        var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+        // In a real app, token shouldn't be URL-unsafe if sent in URL
+        token = token.Replace("+", "-").Replace("/", "_").Replace("=", "");
+
+        user.ResetPasswordToken = token;
+        user.ResetPasswordTokenExpiry = DateTime.UtcNow.AddHours(24);
+
+        await _unitOfWork.SaveAsync();
+
+        // Normally reading from config or request headers
+        var resetLink = $"http://localhost:4200/reset-password?token={token}&email={user.Email}";
+
+        await _emailService.SendPasswordResetEmailAsync(user.Email, resetLink);
+        
+        return true; 
+    }
+
+    public async Task<bool> ResetPasswordAsync(ResetPasswordRequest request)
+    {
+        var user = await _unitOfWork.Users.FirstOrDefaultAsync(u => 
+            u.Email == request.Email && 
+            u.ResetPasswordToken == request.Token && 
+            u.ResetPasswordTokenExpiry > DateTime.UtcNow);
+
+        if (user == null)
+        {
+            return false;
+        }
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        user.ResetPasswordToken = null;
+        user.ResetPasswordTokenExpiry = null;
+
+        await _unitOfWork.SaveAsync();
+
+        return true;
     }
 
     public string GenerateJwtToken(Guid userId, string email, string role)

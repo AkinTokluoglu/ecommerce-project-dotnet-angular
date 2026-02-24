@@ -128,3 +128,54 @@ export interface CreateMessageRequest {
   subject: string;
   content: string;
 }
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  fullName: string;
+  phone?: string;
+  address?: string;
+}
+
+export interface UpdateProfileRequest {
+  fullName: string;
+  phone?: string;
+  address?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export enum OrderStatus {
+  Pending = 0,
+  Processing = 1,
+  Shipped = 2,
+  Delivered = 3,
+  Cancelled = 4
+}
+
+export interface OrderItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productImage?: string;
+  quantity: number;
+  unitPrice: number;
+  customizations?: { [key: string]: string };
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  createdAt: Date;
+  status: OrderStatus;
+  totalAmount: number;
+  paymentMethod: string;
+  contactName: string;
+  contactPhone: string;
+  contactEmail: string;
+  shippingAddress?: string;
+  items: OrderItem[];
+}

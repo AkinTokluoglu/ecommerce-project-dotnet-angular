@@ -44,6 +44,12 @@ import { ToastService } from '../../services/toast.service';
             <button type="submit" class="submit-btn">
               {{ isRegister ? 'Kayıt Ol' : 'Giriş Yap' }}
             </button>
+
+            @if (!isRegister) {
+              <div class="mt-3 text-center">
+                <a routerLink="/forgot-password" class="text-muted" style="font-size: 0.9rem; text-decoration: none;">Şifremi Unuttum</a>
+              </div>
+            }
           </form>
           
           <div class="toggle-form">

@@ -1,0 +1,148 @@
+<div class="profile-page">
+    <div class="container">
+        <div class="profile-header">
+            <h1>Hesabım</h1>
+            <p>Kişisel bilgilerinizi ve siparişlerinizi yönetin</p>
+        </div>
+
+        <div class="profile-grid">
+            <!-- Sidebar / Navigation -->
+            <aside class="profile-sidebar">
+                <ul class="nav-links">
+                    <li [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">
+                        <i class="bi bi-person"></i> Profil Bilgileri
+                    </li>
+                    <li [class.active]="activeTab === 'orders'" (click)="activeTab = 'orders'">
+                        <i class="bi bi-bag"></i> Siparişlerim
+                    </li>
+                    <li [class.active]="activeTab === 'password'" (click)="activeTab = 'password'">
+                        <i class="bi bi-shield-lock"></i> Şifre Değiştir
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="profile-content">
+                <!-- Profile Tab -->
+                @if (activeTab === 'profile') {
+                <div class="content-card">
+                    <h2>Profil Bilgileri</h2>
+                    <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()">
+                        <div class="form-group">
+                            <label>E-posta</label>
+                            <input type="text" [value]="profile?.email" disabled class="disabled-input">
+                            <small class="text-muted">E-posta adresi değiştirilemez.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fullName">Ad Soyad</label>
+                            <input type="text" id="fullName" formControlName="fullName"
+                                [class.is-invalid]="profileForm.get('fullName')?.invalid && profileForm.get('fullName')?.touched">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Telefon</label>
+                            <input type="tel" id="phone" formControlName="phone">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Adres</label>
+                            <textarea id="address" formControlName="address" rows="3"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-submit" [disabled]="profileForm.invalid || isSaving">
+                            {{ isSaving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet' }}
+                        </button>
+                    </form>
+                </div>
+                }
+
+                <!-- Orders Tab -->
+                @if (activeTab === 'orders') {
+                <div class="content-card">
+                    <h2>Sipariş Geçmişi</h2>
+
+                    @if (isLoading) {
+                    <div class="loader">Yükleniyor...</div>
+                    } @else if (orders.length === 0) {
+                    <div class="empty-state">
+                        <i class="bi bi-bag-x"></i>
+                        <p>Henüz bir siparişiniz bulunmuyor.</p>
+                        <a routerLink="/products" class="btn-shop">Alışverişe Başla</a>
+                    </div>
+                    } @else {
+                    <div class="orders-list">
+                        @for (order of orders; track order.id) {
+                        <div class="order-item">
+                            <div class="order-header">
+                                <div class="order-info">
+                                    <span class="order-number">#{{ order.orderNumber }}</span>
+                                    <span class="order-date">{{ order.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
+                                </div>
+                                <div class="order-status" [ngClass]="getStatusClass(order.status)">
+                                    {{ getStatusLabel(order.status) }}
+                                </div>
+                            </div>
+
+                            <div class="order-body">
+                                <div class="order-products">
+                                    @for (item of order.items; track item.id) {
+                                    <div class="product-sm">
+                                        <img [src]="item.productImage || 'assets/no-image.png'"
+                                            [alt]="item.productName">
+                                        <div class="product-details">
+                                            <span class="name">{{ item.productName }}</span>
+                                            <span class="qty">{{ item.quantity }} Adet</span>
+                                        </div>
+                                    </div>
+                                    }
+                                </div>
+                                <div class="order-summary">
+                                    <span class="total-label">Toplam:</span>
+                                    <span class="total-amount">{{ order.totalAmount | number:'1.2-2' }} ₺</span>
+                                </div>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+                }
+
+                <!-- Password Tab -->
+                @if (activeTab === 'password') {
+                <div class="content-card">
+                    <h2>Şifre Değiştir</h2>
+                    <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+                        <div class="form-group">
+                            <label for="currentPassword">Mevcut Şifre</label>
+                            <input type="password" id="currentPassword" formControlName="currentPassword">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPassword">Yeni Şifre</label>
+                            <input type="password" id="newPassword" formControlName="newPassword">
+                            <small class="error" *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
+                                Şifre en az 6 karakter olmalıdır.
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Yeni Şifre (Tekrar)</label>
+                            <input type="password" id="confirmPassword" formControlName="confirmPassword">
+                            <small class="error"
+                                *ngIf="passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword')?.touched">
+                                Şifreler eşleşmiyor.
+                            </small>
+                        </div>
+
+                        <button type="submit" class="btn-submit" [disabled]="passwordForm.invalid || isSaving">
+                            {{ isSaving ? 'Güncelleniyor...' : 'Şifreyi Güncelle' }}
+                        </button>
+                    </form>
+                </div>
+                }
+            </main>
+        </div>
+    </div>
+</div>
