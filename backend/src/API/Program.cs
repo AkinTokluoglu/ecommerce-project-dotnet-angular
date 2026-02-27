@@ -57,7 +57,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.SetIsOriginAllowed(_ => true) // Allow any origin in dynamic deployment
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -90,6 +90,9 @@ using (var scope = app.Services.CreateScope())
     var context = services.GetRequiredService<ApplicationDbContext>();
     try
     {
+        // Otomatik Migration
+        await context.Database.MigrateAsync();
+        
         await DbInitializer.SeedAsync(context);
     }
     catch (Exception ex)
