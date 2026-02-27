@@ -97,8 +97,17 @@ using (var scope = app.Services.CreateScope())
     var context = services.GetRequiredService<ApplicationDbContext>();
     try
     {
-        // Otomatik Migration
-        await context.Database.MigrateAsync();
+        var currentProvider = context.Database.ProviderName;
+        if (currentProvider != null && currentProvider.Contains("PostgreSQL"))
+        {
+            // PostgreSQL (Render/Cloud) için SQLite migrationları uyumsuz olacağından şemayı doğrudan oluşturuyoruz.
+            await context.Database.EnsureCreatedAsync();
+        }
+        else
+        {
+            // Local (SQLite) için normal migration kullanıyoruz.
+            await context.Database.MigrateAsync();
+        }
         
         await DbInitializer.SeedAsync(context);
     }
