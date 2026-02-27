@@ -18,6 +18,10 @@ RUN dotnet publish src/API/MarangozEcommerce.API.csproj -c Release -o out
 # Çalıştırma aşaması (Final stage)
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
+
+# PostgreSQL bağlantıları (GSSAPI) için gereken sistem kütüphanelerini kuruyoruz
+RUN apt-get update && apt-get install -y libgssapi-krb5-2 && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/out .
 
 # Yüklenen görseller için klasör oluştur (Render Disk kullanacaksanız burası önemli)
