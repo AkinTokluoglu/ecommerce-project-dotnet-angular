@@ -18,12 +18,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Database configuration
-// Database configuration
 var dbProvider = builder.Configuration.GetValue<string>("DbProvider");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-if (string.Equals(dbProvider, "postgres", StringComparison.OrdinalIgnoreCase))
+if (string.Equals(dbProvider, "postgres", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(connectionString))
 {
+    // Render/Railway gibi platformlar için postgres:// formatını Host=... formatına çevir
+    if (connectionString.StartsWith("postgres://"))
+    {
+        var uri = new Uri(connectionString);
+        var userInfo = uri.UserInfo.Split(':');
+        connectionString = $"Host={uri.Host};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};Port={(uri.Port > 0 ? uri.Port : 5432)};SSL Mode=Require;Trust Server Certificate=true";
+    }
+
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseNpgsql(connectionString));
 }
