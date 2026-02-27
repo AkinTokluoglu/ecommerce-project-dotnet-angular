@@ -23,8 +23,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 if (string.Equals(dbProvider, "postgres", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(connectionString))
 {
-    // Render/Railway gibi platformlar için postgres:// formatını Host=... formatına çevir
-    if (connectionString.StartsWith("postgres://"))
+    // Render/Railway gibi platformlar için postgres:// veya postgresql:// formatını Host=... formatına çevir
+    if (connectionString.StartsWith("postgres://") || connectionString.StartsWith("postgresql://"))
     {
         var uri = new Uri(connectionString);
         var userInfo = uri.UserInfo.Split(':');
